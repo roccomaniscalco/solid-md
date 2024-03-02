@@ -1,6 +1,6 @@
 import { Button as KbButton } from "@kobalte/core"
 import { ComponentProps, splitProps } from "solid-js"
-import { cn } from "../util/cn"
+import { cn } from "@/util/cn"
 
 type ButtonProps = ComponentProps<typeof KbButton.Root>
 

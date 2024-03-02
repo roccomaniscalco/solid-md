@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js"
-import Button from "./ui/button"
+import Button from "@/ui/button"
 
 function App() {
   const [count, setCount] = createSignal(0)
