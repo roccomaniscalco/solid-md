@@ -11,6 +11,9 @@ dependencies:
   '@kobalte/tailwindcss':
     specifier: ^0.9.0
     version: 0.9.0(tailwindcss@3.4.1)
+  '@solidjs/router':
+    specifier: ^0.12.4
+    version: 0.12.4(solid-js@1.8.15)
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
@@ -1093,6 +1096,14 @@ packages:
     resolution: {integrity: sha512-CqAwKb2T5Vi72+rhebSsqNZ9o67buYRdEJrIFzRXz3U59QqezuuxPsyzTSVCacwS5Pf109VRsgCJQoxKRoECZQ==}
     peerDependencies:
       solid-js: ^1.6.12
+    dependencies:
+      solid-js: 1.8.15
+    dev: false
+
+  /@solidjs/router@0.12.4(solid-js@1.8.15):
+    resolution: {integrity: sha512-2S5QWYmpWSIWn5ei85eoStEMmECERX2BiBkEvmqYDrgX79I8D95YaWVdHbcFGOxISPTY4TP7RxjRiofs/AIFJQ==}
+    peerDependencies:
+      solid-js: ^1.8.6
     dependencies:
       solid-js: 1.8.15
     dev: false

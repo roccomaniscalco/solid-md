@@ -11,6 +11,7 @@
   "dependencies": {
     "@kobalte/core": "^0.12.2",
     "@kobalte/tailwindcss": "^0.9.0",
+    "@solidjs/router": "^0.12.4",
     "clsx": "^2.1.0",
     "partysocket": "1.0.0",
     "solid-js": "^1.8.15",
