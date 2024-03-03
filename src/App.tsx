@@ -1,20 +1,21 @@
-import { createSignal } from "solid-js"
-import Button from "@/ui/button"
+import { TextField } from "@kobalte/core"
 
 function App() {
-  const [count, setCount] = createSignal(0)
-
   return (
     <>
-      <div class="flex flex-col items-center gap-6 p-8">
-        <h1>Vite + Solid</h1>
-        <Button onClick={() => setCount((count) => count + 1)}>
-          count is <span class="tabular-nums">{count()}</span>
-        </Button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-        <p>Click on the Vite and Solid logos to learn more</p>
+      <div class="mx-auto flex max-w-2xl flex-col gap-6 p-10">
+        <TextField.Root class="flex flex-col gap-2">
+          <TextField.Label class="w-fit text-sm font-semibold">
+            Multiplayer Text Area
+          </TextField.Label>
+          <TextField.TextArea
+            autoResize
+            class="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none ring-offset-2 ring-offset-gray-950 focus:ring-2 focus:ring-teal-400"
+          />
+          <TextField.Description class="text-sm text-gray-400">
+            Everyone can view and edit the content of this text area.
+          </TextField.Description>
+        </TextField.Root>
       </div>
     </>
   )
