@@ -1,4 +1,3 @@
-import Button from "@/ui/button"
 import { TextField } from "@kobalte/core"
 import PartySocket from "partysocket"
 import { For, createEffect, createSignal } from "solid-js"
@@ -7,17 +6,16 @@ function App() {
   const { messages, sendMessage } = createMessageRoom()
   const [draft, setDraft] = createSignal("")
 
-  const submitDraft = () => {
-    sendMessage(draft())
-    setDraft("")
-  }
+  let messageContainer: HTMLDivElement | undefined
 
   return (
     <>
-      <div class="mx-auto flex max-w-2xl flex-col gap-6 p-10">
-        <For each={messages()} fallback={<div>No messages</div>}>
-          {(message) => <div>{message}</div>}
-        </For>
+      <div class="mx-auto flex h-screen max-w-2xl flex-col gap-6 p-10">
+        <div class="flex-1 overflow-auto" ref={messageContainer}>
+          <For each={messages()} fallback={<div>No messages</div>}>
+            {(message) => <div>{message}</div>}
+          </For>
+        </div>
 
         <TextField.Root class="flex flex-col gap-2">
           <TextField.TextArea
@@ -28,15 +26,18 @@ function App() {
             autoResize
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
+                if (!draft()) return
                 e.preventDefault()
-                submitDraft()
+                sendMessage(draft())
+                setDraft("")
+                messageContainer?.scrollTo({
+                  behavior: "smooth",
+                  top: messageContainer.scrollHeight,
+                })
               }
             }}
           />
         </TextField.Root>
-        <Button onClick={submitDraft} disabled={!draft()}>
-          Send
-        </Button>
       </div>
     </>
   )
