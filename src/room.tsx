@@ -7,12 +7,12 @@ export default function Room() {
   const { roomId } = useParams()
   const { messages, sendMessage } = createMessageRoom(roomId)
   const [draft, setDraft] = createSignal("")
-  let messageContainer: HTMLDivElement | undefined
+  let chatContainer: HTMLDivElement | undefined
 
   return (
     <>
       <div class="mx-auto flex h-screen max-w-2xl flex-col gap-6 p-10">
-        <div class="flex-1 overflow-auto" ref={messageContainer}>
+        <div class="flex-1 overflow-auto" ref={chatContainer}>
           <For each={messages()} fallback={<div>No messages</div>}>
             {(message) => <div>{message}</div>}
           </For>
@@ -31,9 +31,9 @@ export default function Room() {
                 e.preventDefault()
                 sendMessage(draft())
                 setDraft("")
-                messageContainer?.scrollTo({
+                chatContainer?.scrollTo({
                   behavior: "smooth",
-                  top: messageContainer.scrollHeight,
+                  top: chatContainer.scrollHeight,
                 })
               }
             }}
