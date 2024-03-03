@@ -12,18 +12,19 @@
     "@kobalte/core": "^0.12.2",
     "@kobalte/tailwindcss": "^0.9.0",
     "clsx": "^2.1.0",
+    "partysocket": "1.0.0",
     "solid-js": "^1.8.15",
-    "tailwind-merge": "^2.2.1",
-    "partysocket": "1.0.0"
+    "tailwind-merge": "^2.2.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.18",
+    "partykit": "0.0.97",
     "postcss": "^8.4.35",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.1.4",
     "vite-plugin-solid": "^2.10.1",
-    "partykit": "0.0.97"
+    "vite-tsconfig-paths": "^4.3.1"
   }
 }
