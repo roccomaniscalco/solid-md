@@ -1,10 +1,12 @@
+import type { JoinMessage, TextMessage } from "@/party/schema"
+import { textMessageSchema } from "@/party/schema"
 import type * as Party from "partykit/server"
 
 export default class Server implements Party.Server {
-  messages: string[]
+  texts: TextMessage[]
 
   constructor(readonly room: Party.Room) {
-    this.messages = []
+    this.texts = []
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
@@ -16,20 +18,20 @@ export default class Server implements Party.Server {
   url: ${new URL(ctx.request.url).pathname}`,
     )
 
-    // let's send messages to the connection
-    for (const message of this.messages) {
-      conn.send(message)
-    }
+    // let's get the new connection up to speed with sent messages
+    const message = { type: "join", texts: this.texts } satisfies JoinMessage
+    conn.send(JSON.stringify(message))
   }
 
   onMessage(message: string, sender: Party.Connection) {
+    const textMessage = textMessageSchema.parse(JSON.parse(message))
     // let's log the message
-    console.log(`connection ${sender.id} sent message: ${message}`)
+    console.log(`user ${textMessage.user} sent message: ${textMessage.content}`)
     // push it to the messages array
-    this.messages.push(`${sender.id}: ${message}`)
+    this.texts.push(textMessage)
     // as well as broadcast it to all the other connections in the room...
     this.room.broadcast(
-      `${sender.id}: ${message}`,
+      message,
       // ...except for the connection it came from
       [sender.id],
     )

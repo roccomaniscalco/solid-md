@@ -15,7 +15,8 @@
     "clsx": "^2.1.0",
     "partysocket": "1.0.0",
     "solid-js": "^1.8.15",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.18",

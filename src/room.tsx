@@ -1,3 +1,4 @@
+import { TextMessage, messageSchema } from "@/party/schema"
 import { TextField } from "@kobalte/core"
 import { useParams } from "@solidjs/router"
 import PartySocket from "partysocket"
@@ -5,16 +6,30 @@ import { For, createEffect, createSignal } from "solid-js"
 
 export default function Room() {
   const { roomId } = useParams()
-  const { messages, sendMessage } = createMessageRoom(roomId)
+  const { texts, sendText } = createChatRoom(roomId)
   const [draft, setDraft] = createSignal("")
   let chatContainer: HTMLDivElement | undefined
+
+  function submitDraft() {
+    if (!draft()) return
+    sendText(draft())
+    setDraft("")
+    chatContainer?.scrollTo({
+      behavior: "smooth",
+      top: chatContainer.scrollHeight,
+    })
+  }
 
   return (
     <>
       <div class="mx-auto flex h-screen max-w-2xl flex-col gap-6 p-10">
         <div class="flex-1 overflow-auto" ref={chatContainer}>
-          <For each={messages()} fallback={<div>No messages</div>}>
-            {(message) => <div>{message}</div>}
+          <For each={texts()} fallback={<div>No messages</div>}>
+            {(text) => (
+              <div>
+                {text.user}: {text.content}
+              </div>
+            )}
           </For>
         </div>
 
@@ -27,14 +42,8 @@ export default function Room() {
             autoResize
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                if (!draft()) return
                 e.preventDefault()
-                sendMessage(draft())
-                setDraft("")
-                chatContainer?.scrollTo({
-                  behavior: "smooth",
-                  top: chatContainer.scrollHeight,
-                })
+                submitDraft()
               }
             }}
           />
@@ -44,8 +53,8 @@ export default function Room() {
   )
 }
 
-function createMessageRoom(roomId: string) {
-  const [messages, setMessages] = createSignal<string[]>([])
+function createChatRoom(roomId: string) {
+  const [texts, setTexts] = createSignal<TextMessage[]>([])
 
   const ws = new PartySocket({
     host: "localhost:1999",
@@ -55,14 +64,23 @@ function createMessageRoom(roomId: string) {
 
   createEffect(() => {
     ws.onmessage = (event) => {
-      setMessages((prev) => [...prev, event.data])
+      const message = messageSchema.parse(JSON.parse(event.data))
+      if (message.type === "join") {
+        setTexts(message.texts)
+        return
+      }
+      if (message.type === "add") {
+        setTexts((prevTexts) => [...prevTexts, message])
+        return
+      }
     }
   })
 
-  const sendMessage = (message: string) => {
-    setMessages((prev) => [...prev, `me: ${message}`])
-    ws.send(message)
+  const sendText = (content: string) => {
+    const message = { type: "add", user: "me", content } satisfies TextMessage
+    setTexts((prevTexts) => [...prevTexts, message])
+    ws.send(JSON.stringify(message))
   }
 
-  return { messages, sendMessage }
+  return { texts, sendText }
 }
