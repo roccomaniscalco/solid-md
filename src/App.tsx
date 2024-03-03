@@ -1,6 +1,17 @@
+import Button from "@/ui/button"
 import { TextField } from "@kobalte/core"
+import PartySocket from "partysocket"
+import { createEffect } from "solid-js"
 
 function App() {
+  const ws = createPartySocket()
+
+  createEffect(() => {
+    ws.onmessage = (event) => {
+      alert(event.data)
+    }
+  })
+
   return (
     <>
       <div class="mx-auto flex max-w-2xl flex-col gap-6 p-10">
@@ -16,9 +27,19 @@ function App() {
             Everyone can view and edit the content of this text area.
           </TextField.Description>
         </TextField.Root>
+        <Button onClick={() => ws.send("hi")}>Test</Button>
       </div>
     </>
   )
+}
+
+function createPartySocket() {
+  const ws = new PartySocket({
+    host: "localhost:1999",
+    room: "my-room",
+    party: "main",
+  })
+  return ws
 }
 
 export default App
