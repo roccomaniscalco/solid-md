@@ -5,7 +5,6 @@ import { For, createEffect, createSignal } from "solid-js"
 function App() {
   const { messages, sendMessage } = createMessageRoom()
   const [draft, setDraft] = createSignal("")
-
   let messageContainer: HTMLDivElement | undefined
 
   return (
@@ -55,7 +54,6 @@ function createMessageRoom() {
   createEffect(() => {
     ws.onmessage = (event) => {
       setMessages((prev) => [...prev, event.data])
-      console.log(event.data)
     }
   })
 
