@@ -1,9 +1,11 @@
 import { TextField } from "@kobalte/core"
+import { useParams } from "@solidjs/router"
 import PartySocket from "partysocket"
 import { For, createEffect, createSignal } from "solid-js"
 
 export default function Room() {
-  const { messages, sendMessage } = createMessageRoom()
+  const { roomId } = useParams()
+  const { messages, sendMessage } = createMessageRoom(roomId)
   const [draft, setDraft] = createSignal("")
   let messageContainer: HTMLDivElement | undefined
 
@@ -42,12 +44,12 @@ export default function Room() {
   )
 }
 
-function createMessageRoom() {
+function createMessageRoom(roomId: string) {
   const [messages, setMessages] = createSignal<string[]>([])
 
   const ws = new PartySocket({
     host: "localhost:1999",
-    room: "my-room",
+    room: roomId,
     party: "main",
   })
 
