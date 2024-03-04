@@ -39,6 +39,13 @@ export default function Room() {
                 e.currentTarget.value = ""
               }
             }}
+            // clear the textarea after user presses enter
+            // this is a fix to prevent the textarea from adding a newline
+            onInput={(e) => {
+              if (e.currentTarget.value === "\n") {
+                e.currentTarget.value = ""
+              }
+            }}
           />
         </TextField.Root>
       </div>
