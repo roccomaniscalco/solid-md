@@ -1,5 +1,5 @@
 import type { JoinMessage, TextMessage } from "@/party/schema"
-import { textMessageSchema } from "@/party/schema"
+import { messageSchema } from "@/party/schema"
 import type * as Party from "partykit/server"
 
 export default class Server implements Party.Server {
@@ -23,18 +23,18 @@ export default class Server implements Party.Server {
     conn.send(JSON.stringify(message))
   }
 
-  onMessage(message: string, sender: Party.Connection) {
-    const textMessage = textMessageSchema.parse(JSON.parse(message))
-    // let's log the message
-    console.log(`user ${textMessage.user} sent message: ${textMessage.content}`)
-    // push it to the messages array
-    this.texts.push(textMessage)
-    // as well as broadcast it to all the other connections in the room...
-    this.room.broadcast(
-      message,
-      // ...except for the connection it came from
-      [sender.id],
-    )
+  onMessage(stringifiedMessage: string, sender: Party.Connection) {
+    const message = messageSchema.parse(JSON.parse(stringifiedMessage))
+
+    if (message.type === "add") {
+      this.texts.push(message)
+      this.room.broadcast(stringifiedMessage, [sender.id])
+      return
+    }
+    if (message.type === "cursor") {
+      this.room.broadcast(stringifiedMessage, [sender.id])
+      return
+    }
   }
 }
 

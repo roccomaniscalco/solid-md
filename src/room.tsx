@@ -1,8 +1,15 @@
-import { TextMessage, messageSchema } from "@/party/schema"
+import { CursorMessage, TextMessage, messageSchema } from "@/party/schema"
 import { TextField } from "@kobalte/core"
 import { useParams, useSearchParams } from "@solidjs/router"
 import PartySocket from "partysocket"
-import { For, createEffect, createSignal, on } from "solid-js"
+import {
+  For,
+  createEffect,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+} from "solid-js"
 
 export default function Room() {
   const { roomId } = useParams()
@@ -10,7 +17,7 @@ export default function Room() {
 
   if (!searchParams.user) throw new Error("No `user` in search params")
 
-  const { texts, sendText } = createChatRoom({
+  const { texts, sendText, cursors } = createChatRoom({
     roomId,
     userId: searchParams.user,
   })
@@ -24,6 +31,20 @@ export default function Room() {
 
   return (
     <>
+      <For each={cursors()}>
+        {(cursor) => (
+          <div
+            class="absolute rounded-2xl rounded-tl-none bg-teal-800 px-3 py-1"
+            style={{
+              top: cursor.y + "%",
+              left: cursor.x + "%",
+            }}
+          >
+            {cursor.user}
+          </div>
+        )}
+      </For>
+
       <div class="mx-auto flex h-screen max-w-2xl flex-col gap-6 p-10">
         <div class="flex-1 overflow-auto" ref={chatRef}>
           <For each={texts()} fallback={<div>No messages</div>}>
@@ -68,6 +89,7 @@ function createChatRoom({
   userId: string
 }) {
   const [texts, setTexts] = createSignal<TextMessage[]>([])
+  const [cursors, setCursors] = createSignal<CursorMessage[]>([])
 
   const ws = new PartySocket({
     host: "localhost:1999",
@@ -86,8 +108,28 @@ function createChatRoom({
         setTexts((prevTexts) => [...prevTexts, message])
         return
       }
+      if (message.type === "cursor") {
+        setCursors((prevCursors) => [
+          ...prevCursors.filter((cursor) => cursor.user !== message.user),
+          message,
+        ])
+        return
+      }
     }
   })
+
+  const sendCursor = (e: MouseEvent) => {
+    ws.send(
+      JSON.stringify({
+        type: "cursor",
+        user: userId,
+        x: (e.clientX / window.innerWidth) * 100,
+        y: (e.clientY / window.innerHeight) * 100,
+      } satisfies CursorMessage),
+    )
+  }
+  onMount(() => window.addEventListener("mousemove", sendCursor))
+  onCleanup(() => window.removeEventListener("mousemove", sendCursor))
 
   const sendText = (content: string) => {
     const message = { type: "add", user: userId, content } satisfies TextMessage
@@ -95,5 +137,5 @@ function createChatRoom({
     ws.send(JSON.stringify(message))
   }
 
-  return { texts, sendText }
+  return { texts, sendText, cursors }
 }

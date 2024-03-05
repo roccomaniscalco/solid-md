@@ -13,4 +13,16 @@ export const joinMessageSchema = z.object({
 })
 export type JoinMessage = z.infer<typeof joinMessageSchema>
 
-export const messageSchema = z.union([textMessageSchema, joinMessageSchema])
+export const cursorMessageSchema = z.object({
+  type: z.literal("cursor"),
+  x: z.number(),
+  y: z.number(),
+  user: z.string(),
+})
+export type CursorMessage = z.infer<typeof cursorMessageSchema>
+
+export const messageSchema = z.union([
+  textMessageSchema,
+  joinMessageSchema,
+  cursorMessageSchema,
+])
