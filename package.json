@@ -14,6 +14,7 @@
     "@solidjs/router": "^0.12.4",
     "clsx": "^2.1.0",
     "partysocket": "1.0.0",
+    "solid-icons": "^1.1.0",
     "solid-js": "^1.8.15",
     "tailwind-merge": "^2.2.1",
     "zod": "^3.22.4"

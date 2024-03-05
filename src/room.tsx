@@ -1,7 +1,8 @@
 import { CursorMessage, TextMessage, messageSchema } from "@/party/schema"
-import { TextField } from "@kobalte/core"
+import { Button, TextField } from "@kobalte/core"
 import { useParams, useSearchParams } from "@solidjs/router"
 import PartySocket from "partysocket"
+import { HiSolidPaperAirplane } from "solid-icons/hi"
 import {
   For,
   createEffect,
@@ -21,6 +22,9 @@ export default function Room() {
     roomId,
     userId: searchParams.user,
   })
+  
+  const [draft, setDraft] = createSignal("")
+
   let chatRef: HTMLDivElement | undefined
 
   createEffect(
@@ -56,26 +60,32 @@ export default function Room() {
           </For>
         </div>
 
-        <TextField.Root class="flex flex-col gap-2">
-          <TextField.TextArea
-            class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
-            placeholder="Type a message..."
-            autoResize
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                sendText(e.currentTarget.value)
-                e.currentTarget.value = ""
-              }
-            }}
-            // clear the textarea after user presses enter
-            // this is a fix to prevent the textarea from adding a newline
-            onInput={(e) => {
-              if (e.currentTarget.value === "\n") {
-                e.currentTarget.value = ""
-              }
-            }}
-          />
-        </TextField.Root>
+        <form
+          class="relative"
+          onSubmit={(e) => {
+            e.preventDefault()
+            const draftToSend = draft().trim()
+            if (draftToSend === "") return
+            sendText(draftToSend)
+            setDraft("")
+          }}
+        >
+          <TextField.Root name="draft" value={draft()} onChange={setDraft}>
+            <TextField.TextArea
+              class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 pl-3 pr-10 py-2 align-bottom text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
+              placeholder="Type a message..."
+              autoResize
+              submitOnEnter
+            />
+          </TextField.Root>
+          <Button.Root
+            class="absolute bottom-2 right-2 rounded-sm bg-teal-700 px-1 py-1 text-white outline-none ring-offset-2 ring-offset-gray-950 hover:bg-teal-600 focus:ring-2 focus:ring-teal-400 kb-disabled:bg-transparent kb-disabled:text-gray-500"
+            type="submit"
+            disabled={!draft()}
+          >
+            <HiSolidPaperAirplane />
+          </Button.Root>
+        </form>
       </div>
     </>
   )
