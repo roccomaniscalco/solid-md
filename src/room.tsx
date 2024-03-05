@@ -1,12 +1,19 @@
 import { TextMessage, messageSchema } from "@/party/schema"
 import { TextField } from "@kobalte/core"
-import { useParams } from "@solidjs/router"
+import { useParams, useSearchParams } from "@solidjs/router"
 import PartySocket from "partysocket"
 import { For, createEffect, createSignal, on } from "solid-js"
 
 export default function Room() {
   const { roomId } = useParams()
-  const { texts, sendText } = createChatRoom(roomId)
+  const [searchParams] = useSearchParams()
+
+  if (!searchParams.user) throw new Error("No `user` in search params")
+
+  const { texts, sendText } = createChatRoom({
+    roomId,
+    userId: searchParams.user,
+  })
   let chatRef: HTMLDivElement | undefined
 
   createEffect(
@@ -53,7 +60,13 @@ export default function Room() {
   )
 }
 
-function createChatRoom(roomId: string) {
+function createChatRoom({
+  roomId,
+  userId,
+}: {
+  roomId: string
+  userId: string
+}) {
   const [texts, setTexts] = createSignal<TextMessage[]>([])
 
   const ws = new PartySocket({
@@ -77,7 +90,7 @@ function createChatRoom(roomId: string) {
   })
 
   const sendText = (content: string) => {
-    const message = { type: "add", user: "me", content } satisfies TextMessage
+    const message = { type: "add", user: userId, content } satisfies TextMessage
     setTexts((prevTexts) => [...prevTexts, message])
     ws.send(JSON.stringify(message))
   }
