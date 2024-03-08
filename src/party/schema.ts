@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const textMessageSchema = z.object({
-  type: z.literal("add"),
+  type: z.literal("text"),
   user: z.string(),
   content: z.string(),
 })

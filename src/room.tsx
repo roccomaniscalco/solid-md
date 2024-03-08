@@ -22,7 +22,7 @@ export default function Room() {
     roomId,
     userId: searchParams.user,
   })
-  
+
   const [draft, setDraft] = createSignal("")
 
   let chatRef: HTMLDivElement | undefined
@@ -72,7 +72,7 @@ export default function Room() {
         >
           <TextField.Root name="draft" value={draft()} onChange={setDraft}>
             <TextField.TextArea
-              class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 pl-3 pr-10 py-2 align-bottom text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
+              class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 py-2 pl-3 pr-10 align-bottom text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
               placeholder="Type a message..."
               autoResize
               submitOnEnter
@@ -114,7 +114,7 @@ function createChatRoom({
         setTexts(message.texts)
         return
       }
-      if (message.type === "add") {
+      if (message.type === "text") {
         setTexts((prevTexts) => [...prevTexts, message])
         return
       }
@@ -142,7 +142,7 @@ function createChatRoom({
   onCleanup(() => window.removeEventListener("mousemove", sendCursor))
 
   const sendText = (content: string) => {
-    const message = { type: "add", user: userId, content } satisfies TextMessage
+    const message = { type: "text", user: userId, content } satisfies TextMessage
     setTexts((prevTexts) => [...prevTexts, message])
     ws.send(JSON.stringify(message))
   }

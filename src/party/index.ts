@@ -26,7 +26,7 @@ export default class Server implements Party.Server {
   onMessage(stringifiedMessage: string, sender: Party.Connection) {
     const message = messageSchema.parse(JSON.parse(stringifiedMessage))
 
-    if (message.type === "add") {
+    if (message.type === "text") {
       this.texts.push(message)
       this.room.broadcast(stringifiedMessage, [sender.id])
       return
