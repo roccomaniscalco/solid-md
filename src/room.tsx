@@ -14,14 +14,11 @@ import {
 
 export default function Room() {
   const { roomId } = useParams()
-  const [searchParams] = useSearchParams()
+  const [{ user: userId }] = useSearchParams()
 
-  if (!searchParams.user) throw new Error("No `user` in search params")
+  if (!userId) throw new Error("No `user` in search params")
 
-  const { texts, sendText, cursors } = createChatRoom({
-    roomId,
-    userId: searchParams.user,
-  })
+  const { texts, sendText, cursors } = createChatRoom({ roomId, userId })
 
   const [draft, setDraft] = createSignal("")
 
@@ -70,9 +67,9 @@ export default function Room() {
             setDraft("")
           }}
         >
-          <TextField.Root name="draft" value={draft()} onChange={setDraft}>
+          <TextField.Root value={draft()} onChange={setDraft}>
             <TextField.TextArea
-              class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 py-2 pl-3 pr-10 align-bottom text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
+              class="w-full resize-none rounded-md border border-gray-700 bg-gray-800 py-2 pl-3 pr-11 align-bottom text-white outline-none ring-offset-2 ring-offset-gray-950 placeholder:text-gray-500 focus:ring-2 focus:ring-teal-400"
               placeholder="Type a message..."
               autoResize
               submitOnEnter
@@ -115,12 +112,12 @@ function createChatRoom({
         return
       }
       if (message.type === "text") {
-        setTexts((prevTexts) => [...prevTexts, message])
+        setTexts([...texts(), message])
         return
       }
       if (message.type === "cursor") {
-        setCursors((prevCursors) => [
-          ...prevCursors.filter((cursor) => cursor.user !== message.user),
+        setCursors([
+          ...cursors().filter((c) => c.user !== message.user),
           message,
         ])
         return
@@ -129,20 +126,24 @@ function createChatRoom({
   })
 
   const sendCursor = (e: MouseEvent) => {
-    ws.send(
-      JSON.stringify({
-        type: "cursor",
-        user: userId,
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      } satisfies CursorMessage),
-    )
+    const cursorMessage = {
+      type: "cursor",
+      user: userId,
+      x: (e.clientX / window.innerWidth) * 100,
+      y: (e.clientY / window.innerHeight) * 100,
+    } satisfies CursorMessage
+    ws.send(JSON.stringify(cursorMessage))
   }
+
   onMount(() => window.addEventListener("mousemove", sendCursor))
   onCleanup(() => window.removeEventListener("mousemove", sendCursor))
 
   const sendText = (content: string) => {
-    const message = { type: "text", user: userId, content } satisfies TextMessage
+    const message = {
+      type: "text",
+      user: userId,
+      content,
+    } satisfies TextMessage
     setTexts((prevTexts) => [...prevTexts, message])
     ws.send(JSON.stringify(message))
   }
